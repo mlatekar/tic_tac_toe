@@ -4,6 +4,10 @@ echo "Welcome to Tic Tac Toe Game"
 ROW=3
 COLUMN=3
 
+#VARIABLE
+player=0
+
+
 #DECLARE ARRAY
 declare -a board
 
@@ -18,4 +22,16 @@ function reset()
 		done
 	done
 }
+
+function assignSymbol()
+{
+		if [ $((RANDOM%2)) -eq  0 ]
+		then
+			player="X"
+		else
+			player="O"
+		fi
+	echo "player has assign : $player"
+}
 reset
+assignSymbol
