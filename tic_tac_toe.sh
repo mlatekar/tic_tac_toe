@@ -7,9 +7,8 @@ COLUMN=3
 #VARIABLE
 player=0
 
-
 #DECLARE ARRAY
-declare -a board
+declare -A board
 
 #RESET THE BOARD
 function reset()
@@ -23,15 +22,30 @@ function reset()
 	done
 }
 
+#ASSIGN LETTER TO PLAYER
 function assignSymbol()
 {
-		if [ $((RANDOM%2)) -eq  0 ]
+	if [ $((RANDOM%2)) -eq  0 ]
 		then
 			player="X"
+			computer="O"
 		else
 			player="O"
+			computer="X"
 		fi
 	echo "player has assign : $player"
 }
+
+#TOSS FOR WHO WILL PLAY FIRST
+function tossForPlay()
+{
+	if [ $((RANDOM%2)) -eq 0 ]
+	then
+		echo "player play first"
+	else
+		echo "computer play first"
+	fi
+}
 reset
 assignSymbol
+tossForPlay
