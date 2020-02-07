@@ -17,7 +17,7 @@ function reset()
 	do
 		for(( j=0; j<$COLUMN; j++ ))
 		do
-			board[$i,$j]=" "
+			board[$i,$j]="-"
 		done
 	done
 }
@@ -46,6 +46,34 @@ function tossForPlay()
 		echo "computer play first"
 	fi
 }
+
+#DISPLAY THE TIC-TAC-TOE BOARD
+function displayTheBoard()
+{
+   for (( i=0; i<$ROW; i++ ))
+   do
+      echo "-----------"
+      for (( j=0; j<$COLUMN; j++ ))
+      do
+         echo -n "| ${board[$i,$j]} "
+      done
+      echo "|"
+   done  
+}
+
+#PLAER  CAN CHOOSE VALID CELL
+function playGame()
+{
+	tossForPlay
+	assignSymbol
+	displayTheBoard
+	read -p "Row" row
+	read -p "column" column
+		if [[ ${board[$row,$column]} == - ]]
+			then
+				board[$row,$column]=$player
+				displayTheBoard
+			fi
+}
 reset
-assignSymbol
-tossForPlay
+playGame
