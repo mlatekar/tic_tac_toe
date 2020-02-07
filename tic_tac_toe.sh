@@ -1,4 +1,4 @@
-#! /bin/bash -X
+#! /bin/bash 
 echo "Welcome to Tic Tac Toe Game"
 
 #CONSTANT
@@ -8,8 +8,9 @@ MAXIMUMPLAYINGTURN=9
 
 #VARIABLE
 totalPlayingTurn=0
-player=0
-flag=true
+#player=0
+flag=0
+
 #DECLARE ARRAY
 declare -A board
 
@@ -36,7 +37,7 @@ function assignSymbol()
 			player="O"
 			computer="X"
 		fi
-	echo "player has assign : $player"
+	echo "player has assign : $player  computer has assign :$computer"
 }
 
 #TOSS FOR WHO WILL PLAY FIRST
@@ -46,7 +47,8 @@ function tossForPlay()
 	then
 		echo "player play first"
 	else
-		echo "computer play first"
+		echo "your playing with computer"
+		flag=1
 	fi
 }
 
@@ -63,26 +65,43 @@ function displayTheBoard()
       echo "|"
    done  
 }
-displayTheBoard
+
 #PLAER  CAN CHOOSE VALID CELL
 function playGame()
 {
 	tossForPlay
 	assignSymbol
-#	displayTheBoard
+	displayTheBoard
 	while [[ $totalPlayingTurn -ne $MAXIMUMPLAYINGTURN ]]
 	do
-		if [[ $flag -eq true ]]
+	if [[ $flag -eq 0 ]]
+	then
+		read -p "Row" row
+		read -p "column" column
+		if [[ ${board[$row,$column]} == - ]]
 		then
-			read -p "Row" row
-			read -p "column" column
-				if [[ ${board[$row,$column]} == - ]]
-				then
-						board[$row,$column]=$player
-						displayTheBoard
-						checkWinner $player 
-				fi
+			board[$row,$column]=$player
+			displayTheBoard
+			flag=1
+			checkWinner $player
+			((totalPlayingTurn++))
+		else
+			echo "place is occupied choose another place"
 		fi
+	elif [[ $flag -eq 1 ]]
+        then
+            row=$((RANDOM%3))
+            column=$((RANDOM%3))
+            if [[ ${board[$row,$column]} == - ]]
+               then
+                  board[$row,$column]=$computer
+                  echo "computer played"
+                  displayTheBoard
+		  flag=0
+                  checkWinner $computer
+		((totalPlayingTurn++))
+            fi
+      fi
 	done
 }
 
@@ -95,24 +114,24 @@ function checkWinner()
 	do
 	if [[ ${board[$i,$j]} == $1 && ${board[$i,$((j+1))]} == $1 && ${board[$i,$((j+2))]} == $1 ]]
 	then
-		echo "winner"
+		echo "winner is : $1"
 		exit
 	fi
 	if [[ ${board[$i,$j]} == $1 && ${board[$((i+1)),$j]} == $1 && ${board[$((i+2)),$j]} == $1 ]]
 	then
-		echo "winner"
+		echo "winner is : $1"
 		exit
 	fi
 	done
    done
 	if [[ ${board[0,0]} == $1 && ${board[1,1]} == $1 && ${board[2,2]} == $1 ]]
 	then
-		echo "winner"
+		echo "winner is : $1"
 		exit
 	fi
 	if [[ ${board[2,0]} == $1 && ${board[1,1]} == $1 && ${board[0,2]} == $1 ]]
 	then
-		echo "winner"
+		echo "winner is : $1"
 		exit
 	fi
 }
