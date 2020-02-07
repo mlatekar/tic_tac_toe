@@ -1,3 +1,4 @@
+#! /bin/bash -X
 echo "Welcome to Tic Tac Toe Game"
 
 #CONSTANT
@@ -62,26 +63,59 @@ function displayTheBoard()
       echo "|"
    done  
 }
-
+displayTheBoard
 #PLAER  CAN CHOOSE VALID CELL
 function playGame()
 {
 	tossForPlay
 	assignSymbol
-	displayTheBoard
+#	displayTheBoard
 	while [[ $totalPlayingTurn -ne $MAXIMUMPLAYINGTURN ]]
 	do
 		if [[ $flag -eq true ]]
-			then
+		then
 			read -p "Row" row
 			read -p "column" column
 				if [[ ${board[$row,$column]} == - ]]
-					then
+				then
 						board[$row,$column]=$player
 						displayTheBoard
+						checkWinner $player 
 				fi
 		fi
 	done
 }
+
+#CHECK WINNER
+function checkWinner()
+{
+   for (( i=0; i<$ROW; i++ ))
+   do
+      for (( j=0; j<$COLUMN; j++ ))
+	do
+	if [[ ${board[$i,$j]} == $1 && ${board[$i,$((j+1))]} == $1 && ${board[$i,$((j+2))]} == $1 ]]
+	then
+		echo "winner"
+		exit
+	fi
+	if [[ ${board[$i,$j]} == $1 && ${board[$((i+1)),$j]} == $1 && ${board[$((i+2)),$j]} == $1 ]]
+	then
+		echo "winner"
+		exit
+	fi
+	done
+   done
+	if [[ ${board[0,0]} == $1 && ${board[1,1]} == $1 && ${board[2,2]} == $1 ]]
+	then
+		echo "winner"
+		exit
+	fi
+	if [[ ${board[2,0]} == $1 && ${board[1,1]} == $1 && ${board[0,2]} == $1 ]]
+	then
+		echo "winner"
+		exit
+	fi
+}
+
 reset
 playGame
