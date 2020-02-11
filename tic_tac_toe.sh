@@ -1,4 +1,4 @@
-#! /bin/bash 
+#! /bin/bash -x 
 
 echo "Welcome to Tic Tac Toe Game"
 
@@ -9,10 +9,10 @@ MAXIMUMPLAYINGTURN=9
 
 #VARIABLE
 totalPlayingTurn=0
+#player=0
 winner=1
 flag=0
 corner=false
-
 #DECLARE ARRAY
 declare -A board
 
@@ -103,17 +103,18 @@ function playGame()
 			then
 				corners
 		if [[ $block == true ]]
-			then
+		then
+			center
 			row=$((RANDOM%3))
 			column=$((RANDOM%3))
 		      	if [[ ${board[$row,$column]} == "-" ]]
-      		  		then
-      					board[$row,$column]=$computer
-	            			displayTheBoard
-					((totalPlayingTurn++))
-					else
-						playGame
-					fi
+      			then
+      				board[$row,$column]=$computer
+            			displayTheBoard
+				((totalPlayingTurn++))
+				else
+					playGame
+				fi
 		fi
 		fi
 		flag=0
@@ -254,29 +255,30 @@ function blockThePlayer()
 	do
 	for (( k=0; k<$COLUMN; k++ ))
 	do
-	if [[ ${board[$p,$k]} == "-" ]]
-	then
-		board[$p,$k]=$player
-		checkWinner $player
-		if [ $winner -eq 0 ]
+		if [[ ${board[$p,$k]} == "-" ]]
 		then
-			board[$p,$k]=$computer
-			displayTheBoard
-			winner=1
-			((totalPlayingTurn++))
-			block=false
-			break;
-		else
-			board[$p,$k]="-"
+			board[$p,$k]=$player
+			checkWinner $player
+			if [ $winner -eq 0 ]
+			then
+				board[$p,$k]=$computer
+				displayTheBoard
+				winner=1
+				((totalPlayingTurn++))
+				block=false
+				break;
+			else
+				board[$p,$k]="-"
+			fi
 		fi
-	fi
 	done
-	if [[ $block == false ]]
-	then
-		break;
-	fi
+		if [[ $block == false ]]
+		then
+			break;
+		fi
 	done
 }
+
 
 function corners()
 {	
@@ -296,10 +298,23 @@ function corners()
 		fi
 	done
 	if [[ $block == false ]]
-		then
-			break;
+	then
+		break;
 	fi
 	done
+}
+
+function center()
+{
+	block=true
+	if [[ ${board[1,1]} == "-"  ]]
+	then
+		board[$row,$column]=$computer
+		displayTheBoard
+		winnner=1
+		((totalPlayingTurn++))
+		block=false
+	fi
 }
 reset
 playGame
