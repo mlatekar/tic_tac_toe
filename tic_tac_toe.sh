@@ -1,4 +1,4 @@
-#! /bin/bash -x
+#! /bin/bash 
 
 echo "Welcome to Tic Tac Toe Game"
 
@@ -9,9 +9,9 @@ MAXIMUMPLAYINGTURN=9
 
 #VARIABLE
 totalPlayingTurn=0
-#player=0
 winner=1
 flag=0
+corner=false
 
 #DECLARE ARRAY
 declare -A board
@@ -100,20 +100,24 @@ function playGame()
 		playWinMoveDiagonal
 		blockThePlayer
 		if [[ $block == true ]]
-		then
+			then
+				corners
+		if [[ $block == true ]]
+			then
 			row=$((RANDOM%3))
 			column=$((RANDOM%3))
 		      	if [[ ${board[$row,$column]} == "-" ]]
-        		then
-      				board[$row,$column]=$computer
-            			displayTheBoard
-				((totalPlayingTurn++))
-			else
-				playGame
-			fi
+      		  		then
+      					board[$row,$column]=$computer
+	            			displayTheBoard
+					((totalPlayingTurn++))
+					else
+						playGame
+					fi
+		fi
 		fi
 		flag=0
-	fi
+		fi
 	done
 	if [[ $totalPlayingTurn -eq $MAXIMUMPLAYINGTURN ]]
      	then
@@ -250,28 +254,53 @@ function blockThePlayer()
 	do
 	for (( k=0; k<$COLUMN; k++ ))
 	do
-		if [[ ${board[$p,$k]} == "-" ]]
+	if [[ ${board[$p,$k]} == "-" ]]
+	then
+		board[$p,$k]=$player
+		checkWinner $player
+		if [ $winner -eq 0 ]
 		then
-				board[$p,$k]=$player
-				checkWinner $player
-					if [ $winner -eq 0 ]
-					then
-						board[$p,$k]=$computer
-						displayTheBoard
-						winner=1
-						((totalPlayingTurn++))
-						block=false
-						break;
-					else
-						board[$p,$k]="-"
-					fi
+			board[$p,$k]=$computer
+			displayTheBoard
+			winner=1
+			((totalPlayingTurn++))
+			block=false
+			break;
+		else
+			board[$p,$k]="-"
 		fi
+	fi
 	done
-		if [[ $block == false ]]
+	if [[ $block == false ]]
+	then
+		break;
+	fi
+	done
+}
+
+function corners()
+{	
+	block=true
+	for (( row=0; row<$ROW; row+=2 ))
+	do
+	for (( column=0; column<$COLUMN; column+=2 ))
+	do
+		if [[ ${board[$row,$column]} == "-" ]]
 		then
+			board[$row,$column]=$computer
+			displayTheBoard
+			winner=1
+			((totalPlayingTurn++))
+			block=false
 			break;
 		fi
+	done
+	if [[ $block == false ]]
+		then
+			break;
+	fi
 	done
 }
 reset
 playGame
+
