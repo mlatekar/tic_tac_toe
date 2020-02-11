@@ -1,4 +1,5 @@
 #! /bin/bash -x
+
 echo "Welcome to Tic Tac Toe Game"
 
 #CONSTANT
@@ -9,6 +10,7 @@ MAXIMUMPLAYINGTURN=9
 #VARIABLE
 totalPlayingTurn=0
 #player=0
+winner=1
 flag=0
 
 #DECLARE ARRAY
@@ -66,51 +68,59 @@ function displayTheBoard()
    done  
 }
 
-#PLAER  CAN CHOOSE VALID CELL
+tossForPlay
+assignSymbol
+displayTheBoard
+
+#PLAYER  CAN CHOOSE VALID CELL
 function playGame()
 {
-	tossForPlay
-	assignSymbol
-	displayTheBoard
 	while [[ $totalPlayingTurn -ne $MAXIMUMPLAYINGTURN ]]
 	do
 	if [[ $flag -eq 0 ]]
 	then
 		read -p "Row" row
 		read -p "column" column
-		if [[ ${board[$row,$column]} == - ]]
+		if [[ ${board[$row,$column]} == "-" ]]
 		then
 			board[$row,$column]=$player
 			displayTheBoard
-			flag=1
-			checkWinner $player
+			win
 			((totalPlayingTurn++))
 		else
 			echo "place is occupied choose another place"
+			playGame
 		fi
+		flag=1
 	elif [[ $flag -eq 1 ]]
-        then
+	then
+		echo "computer played"
 		playWinMove
 		playWinMoveColumn
 		playWinMoveDiagonal
-		checkWinner $computer
-            	row=$((RANDOM%3))
-		column=$((RANDOM%3))
-            	if [[ ${board[$row,$column]} == - ]]
-               	then
-			board[$row,$column]=$computer
-                  	echo "computer played"
-                  	displayTheBoard
-			flag=0
-                  	checkWinner $computer
-			((totalPlayingTurn++))
-            	fi
-      	fi
+		blockThePlayer
+		if [[ $block == true ]]
+		then
+			row=$((RANDOM%3))
+			column=$((RANDOM%3))
+		      	if [[ ${board[$row,$column]} == "-" ]]
+        		then
+      				board[$row,$column]=$computer
+            			displayTheBoard
+				((totalPlayingTurn++))
+			else
+				playGame
+			fi
+		fi
+		flag=0
+	fi
 	done
 	if [[ $totalPlayingTurn -eq $MAXIMUMPLAYINGTURN ]]
-      	then
+     	then
 		echo "!!!!!......Match Tie.....!!!!! "
+		exit;
 	fi
+
 }
 
 #CHECK WINNER
@@ -122,29 +132,21 @@ function checkWinner()
 	do
 	if [[ ${board[$i,$j]} == $1 && ${board[$i,$((j+1))]} == $1 && ${board[$i,$((j+2))]} == $1 ]]
 	then
-		echo "winner is : $1"
-		displayTheBoard
-		exit
+		winner=0
 	fi
 	if [[ ${board[$i,$j]} == $1 && ${board[$((i+1)),$j]} == $1 && ${board[$((i+2)),$j]} == $1 ]]
 	then
-		echo "winner is : $1"
-		displayTheBoard
-		exit
+		winner=0
 	fi
 	done
    done
 	if [[ ${board[0,0]} == $1 && ${board[1,1]} == $1 && ${board[2,2]} == $1 ]]
 	then
-		echo "winner is : $1"
-		displayTheBoard
-		exit
+		winner=0
 	fi
 	if [[ ${board[2,0]} == $1 && ${board[1,1]} == $1 && ${board[0,2]} == $1 ]]
 	then
-		echo "winner is : $1"
-		displayTheBoard
-		exit
+		winner=0
 	fi
 }
 #WINNING MOVE FOR ROW
@@ -156,16 +158,20 @@ function playWinMove()
 		if [[ ${board[$i,$j]} == "-" && ${board[$i,$((j+1))]} == $computer && ${board[$i,$((j+2))]} == $computer ]]
 		then
 			board[$i,$j]=$computer
+			winner=0
 		fi
 		if [[ ${board[$i,$j]} == $computer && ${board[$i,$((j+1))]} == "-" && ${board[$i,$((j+2))]} == $computer ]]
-   		then
-			board[$i,$((j+1))]=$computer
+  		then
+			board[$i,$(( j+1 ))]=$computer
+			winner=0
 		fi
 		if [[ ${board[$i,$j]} == $computer && ${board[$i,$((j+1))]} == $computer && ${board[$i,$((j+2))]} == "-" ]]
 		then
-               		board[$i,$((j+2))]=$computer
+    		board[$i,$(( j+2 ))]=$computer
+			winner=0
 		fi
 	done
+	win
 }
 #WINNING MOVE FOR COLUMN
 function playWinMoveColumn()
@@ -174,18 +180,22 @@ function playWinMoveColumn()
 	do
 	i=0
 		if [[ ${board[$i,$j]} == "-" && ${board[$((i+1)),$j]} == $computer && ${board[$((i+2)),$j]} == $computer ]]
-            	then
+   		then
 			board[$i,$j))]=$computer
-         	fi
-         	if [[ ${board[$((i+1)),$j]} == $computer && ${board[$((i+1)),$j]} == "-" && ${board[$((i+2)),$j]} == $computer ]]
-            	then
+			winner=0
+		fi
+   		if [[ ${board[$i,$j]} == $computer && ${board[$((i+1)),$j]} == "-" && ${board[$((i+2)),$j]} == $computer ]]
+   		then
 			board[$((i+1)),$j]=$computer
-         	fi
-         	if [[ ${board[$i,$j]} == $computer && ${board[$((i+1)),$j]} == $computer && ${board[$((i+2)),$j]} == "-" ]]
-            	then
-               		board[$((i+2)),$j]=$computer
-         	fi
+			winner=0
+   		fi
+   		if [[ ${board[$i,$j]} == $computer && ${board[$((i+1)),$j]} == $computer && ${board[$((i+2)),$j]} == "-" ]]
+   		then
+		   	board[$((i+2)),$j]=$computer
+			winner=0
+		fi
 	done
+	win
 }
 #WINNING MOVE FOR DIAGONAL
 function playWinMoveDiagonal()
@@ -193,27 +203,75 @@ function playWinMoveDiagonal()
 	if [[ ${board[0,0]} == "-" && ${board[1,1]} == $computer && ${board[2,2]} == $computer ]]
 	then
 		board[0,0]=$computer
+		winner=0
 	fi
 	if [[ ${board[0,0]} == $computer && ${board[1,1]} == "-" && ${board[2,2]} == $computer ]]
-	then
-         	board[1,1]=$computer
+  	then
+		board[1,1]=$computer
+		winner=0
    	fi
 	if [[ ${board[0,0]} == $computer && ${board[1,1]} == $computer && ${board[2,2]} == "-" ]]
-      	then
-         	board[2,2]=$computer
+   	then
+      		board[2,2]=$computer
+		winner=0
    	fi
 	if [[ ${board[0,2]} == "-" && ${board[1,1]} == $computer && ${board[2,0]} == $computer ]]
-      	then
-         	board[0,2]=$computer
+	then
+      		board[0,2]=$computer
+		winner=0
    	fi
    	if [[ ${board[0,2]} == $computer && ${board[1,1]} == "-" && ${board[2,0]} == $computer ]]
-      	then
-         	board[1,1]=$computer
+	then
+      		board[1,1]=$computer
+		winner=0
+	fi
+  	if [[ ${board[0,2]} == $computer && ${board[1,1]} == $computer && ${board[2,0]} == "-" ]]
+  	then
+      		board[2,0]=$computer
+		winner=0
    	fi
-   	if [[ ${board[0,2]} == $computer && ${board[1,1]} == $computer && ${board[2,0]} == "-" ]]
-      	then
-         	board[2,0]=$computer
-   	fi
+	win
+}
+
+function win()
+{
+	if [ $winner -eq 0 ]
+	then
+		echo "winner"
+		displayTheBoard
+		exit
+	fi
+}
+
+function blockThePlayer()
+{
+	block=true
+	for (( p=0; p<$ROW; p++ ))
+	do
+	for (( k=0; k<$COLUMN; k++ ))
+	do
+		if [[ ${board[$p,$k]} == "-" ]]
+		then
+				board[$p,$k]=$player
+				checkWinner $player
+					if [ $winner -eq 0 ]
+					then
+						board[$p,$k]=$computer
+						displayTheBoard
+						winner=1
+						((totalPlayingTurn++))
+						block=false
+						break;
+					else
+						board[$p,$k]="-"
+					fi
+		fi
+	done
+		if [[ $block == false ]]
+		then
+			break;
+		fi
+	done
 }
 reset
 playGame
