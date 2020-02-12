@@ -9,10 +9,10 @@ MAXIMUMPLAYINGTURN=9
 
 #VARIABLE
 totalPlayingTurn=0
-#player=0
 winner=1
 flag=0
 corner=false
+
 #DECLARE ARRAY
 declare -A board
 
@@ -27,7 +27,6 @@ function reset()
 		done
 	done
 }
-
 #ASSIGN LETTER TO PLAYER
 function assignSymbol()
 {
@@ -41,7 +40,6 @@ function assignSymbol()
 	fi
 	echo "player has assign : $player  computer has assign :$computer"
 }
-
 #TOSS FOR WHO WILL PLAY FIRST
 function tossForPlay()
 {
@@ -53,7 +51,6 @@ function tossForPlay()
 		flag=1
 	fi
 }
-
 #DISPLAY THE TIC-TAC-TOE BOARD
 function displayTheBoard()
 {
@@ -67,11 +64,9 @@ function displayTheBoard()
       echo "|"
    done  
 }
-
 tossForPlay
 assignSymbol
 displayTheBoard
-
 #PLAYER  CAN CHOOSE VALID CELL
 function playGame()
 {
@@ -100,25 +95,32 @@ function playGame()
 		playWinMoveDiagonal
 		blockThePlayer
 		if [[ $block == true ]]
-			then
-				corners
-		if [[ $block == true ]]
 		then
+		corners
+			if [[ $block == true ]]
+			then
 			center
-			row=$((RANDOM%3))
-			column=$((RANDOM%3))
-		      	if [[ ${board[$row,$column]} == "-" ]]
-      			then
-      				board[$row,$column]=$computer
-            			displayTheBoard
-				((totalPlayingTurn++))
-				else
-					playGame
+				if [[ $block == true ]]
+				then
+				sides
+					if [[ $block == true ]]
+					then
+					row=$((RANDOM%3))
+					column=$((RANDOM%3))
+			      		if [[ ${board[$row,$column]} == "-" ]]
+ 		  			then
+      						board[$row,$column]=$computer
+	            				displayTheBoard
+						((totalPlayingTurn++))
+					else
+						playGame
+					fi
 				fi
+			fi
 		fi
-		fi
-		flag=0
-		fi
+	fi
+	flag=0
+	fi
 	done
 	if [[ $totalPlayingTurn -eq $MAXIMUMPLAYINGTURN ]]
      	then
@@ -127,7 +129,6 @@ function playGame()
 	fi
 
 }
-
 #CHECK WINNER
 function checkWinner()
 {
@@ -237,7 +238,7 @@ function playWinMoveDiagonal()
    	fi
 	win
 }
-
+#CHECK WIN
 function win()
 {
 	if [ $winner -eq 0 ]
@@ -247,7 +248,7 @@ function win()
 		exit
 	fi
 }
-
+#BLOCK THE WINNING PLAYER 
 function blockThePlayer()
 {
 	block=true
@@ -278,8 +279,7 @@ function blockThePlayer()
 		fi
 	done
 }
-
-
+#TAKE CORNER 
 function corners()
 {	
 	block=true
@@ -303,7 +303,7 @@ function corners()
 	fi
 	done
 }
-
+#IF CORNER NOT AVAILABLE THEN TAKE CENTER
 function center()
 {
 	block=true
@@ -314,7 +314,43 @@ function center()
 		winnner=1
 		((totalPlayingTurn++))
 		block=false
+		break;
 	fi
+	if [[ $block == false ]]
+	then
+		break;
+	fi
+}
+#IF CORNER & CENTER NOT AVAILABLE THEN TAKE SIDE 
+function sides()
+{  
+   block=true
+   for (( sideRow=0; sideRow<$ROW; sideRow+=2 ))
+   do
+	sideColumn=1
+	if [[ ${board[$sideRow,$sideColumn]} == "-" ]]
+	then
+            board[$sideRow,$sideColumn]=$computer
+            displayTheBoard
+            winner=1
+            ((totalPlayingTurn++))
+            block=false
+            break;
+	fi
+	if [[ ${board[$sideColumn,$sideRow]} == "-" ]]
+	then
+		board[$sideColumn,$sideRow]=$computer
+		displayTheBoard
+		winner=1
+		((totalPlayingTurn++))
+		block=false
+		break;
+	fi
+	if [[ $block == false ]]
+      	then
+         	break;
+   	fi
+   done
 }
 reset
 playGame
